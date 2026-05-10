@@ -11,7 +11,8 @@ type User = {
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null as User | null,
-    loading: false
+    loading: false,
+    checked: false
   }),
   actions: {
     loginWithGoogle() {
@@ -20,11 +21,14 @@ export const useAuthStore = defineStore("auth", {
     async fetchMe() {
       this.loading = true;
       try {
-        const { data } = await api.get<User>("/api/me");
+        const { data } = await api.get<User>("/api/me", { skipAuthRedirect: true } as Record<string, boolean>);
         this.user = data;
+        return true;
       } catch {
         this.user = null;
+        return false;
       } finally {
+        this.checked = true;
         this.loading = false;
       }
     },

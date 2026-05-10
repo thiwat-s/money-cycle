@@ -44,14 +44,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
 import { useDisplay } from "vuetify";
 import { useAuthStore } from "./stores/auth";
 
 const auth = useAuthStore();
 const { mobile } = useDisplay();
-
-onMounted(() => {
-  auth.fetchMe();
-});
 </script>
