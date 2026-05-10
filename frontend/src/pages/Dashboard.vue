@@ -12,25 +12,25 @@
     </div>
 
     <v-row>
-      <v-col cols="12" md="3">
+      <v-col cols="6" md="3">
         <v-card class="metric pa-5" elevation="0">
           <div class="text-body-2 text-medium-emphasis">Total Remaining</div>
           <div class="text-h5 mt-2">{{ money(totalRemaining) }}</div>
         </v-card>
       </v-col>
-      <v-col cols="12" md="3">
+      <v-col cols="6" md="3">
         <v-card class="metric pa-5" elevation="0">
           <div class="text-body-2 text-medium-emphasis">Spent This Cycle</div>
           <div class="text-h5 mt-2">{{ money(totalExpenses) }}</div>
         </v-card>
       </v-col>
-      <v-col cols="12" md="3">
+      <v-col cols="6" md="3">
         <v-card class="metric pa-5" elevation="0">
           <div class="text-body-2 text-medium-emphasis">Allocated</div>
           <div class="text-h5 mt-2">{{ money(totalAllocated) }}</div>
         </v-card>
       </v-col>
-      <v-col cols="12" md="3">
+      <v-col cols="6" md="3">
         <v-card class="metric pa-5" elevation="0">
           <div class="text-body-2 text-medium-emphasis">Days Left</div>
           <div class="text-h5 mt-2">{{ daysLeft }}</div>

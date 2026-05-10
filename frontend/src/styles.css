@@ -2,6 +2,7 @@ body {
   margin: 0;
   background: #f8fafc;
   font-size: 16px;
+  -webkit-font-smoothing: antialiased;
 }
 
 .v-application {
@@ -103,23 +104,23 @@ body {
 
 @media (max-width: 720px) {
   html {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .page {
-    padding: 20px 16px 104px;
+    padding: 18px 14px calc(96px + env(safe-area-inset-bottom));
   }
 
   .page-header {
     align-items: flex-start;
     flex-direction: column;
-    gap: 14px;
-    margin-bottom: 18px;
+    gap: 12px;
+    margin-bottom: 16px;
   }
 
   .page-header h1 {
-    font-size: 1.78rem !important;
-    line-height: 1.15;
+    font-size: 1.75rem !important;
+    line-height: 1.1;
   }
 
   .page-header .text-body-1 {
@@ -128,35 +129,39 @@ body {
 
   .header-actions {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     justify-content: flex-start;
     width: 100%;
+    gap: 8px;
   }
 
   .header-actions .v-btn,
   .page-header > .v-btn {
     width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
   }
 
   .metric {
-    min-height: 126px;
-    padding: 20px !important;
+    min-height: 104px;
+    padding: 14px !important;
   }
 
   .metric .text-h5 {
-    font-size: 1.36rem !important;
+    font-size: 1.18rem !important;
     line-height: 1.25;
     overflow-wrap: anywhere;
   }
 
   .metric .text-body-2 {
-    font-size: 0.94rem !important;
+    font-size: 0.82rem !important;
+    line-height: 1.25;
   }
 
   .responsive-card-title {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
-    padding: 18px;
+    padding: 16px 16px 8px;
     font-size: 1.12rem;
   }
 
@@ -190,7 +195,7 @@ body {
   }
 
   .v-card-text {
-    padding: 18px !important;
+    padding: 14px !important;
   }
 
   .v-card-actions {
@@ -236,25 +241,25 @@ body {
 
   .responsive-table tbody {
     display: grid;
-    gap: 14px;
-    padding: 14px;
+    gap: 10px;
+    padding: 10px 14px 14px;
   }
 
   .responsive-table tr {
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     background: #ffffff;
-    padding: 12px 14px;
+    padding: 10px 12px;
   }
 
   .responsive-table td {
-    min-height: 42px;
+    min-height: 36px;
     border: 0 !important;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 9px 0 !important;
+    padding: 7px 0 !important;
     text-align: right !important;
     white-space: normal;
     overflow-wrap: anywhere;
@@ -286,11 +291,20 @@ body {
   }
 
   .v-bottom-navigation {
-    height: 72px !important;
+    height: calc(64px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .v-toolbar-title {
-    font-size: 1.12rem;
+    font-size: 1rem;
+  }
+
+  .v-toolbar {
+    min-height: 52px !important;
+  }
+
+  .v-toolbar__content {
+    height: 52px !important;
   }
 
   .login-page {
