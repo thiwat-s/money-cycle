@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { api } from "../api";
+import { api, clearAuthToken, setAuthToken } from "../api";
 
 type User = {
   _id: string;
@@ -18,6 +18,10 @@ export const useAuthStore = defineStore("auth", {
     loginWithGoogle() {
       window.location.href = `${import.meta.env.VITE_API_URL ?? "http://localhost:4000"}/auth/google`;
     },
+    setToken(token: string) {
+      setAuthToken(token);
+      this.checked = false;
+    },
     async fetchMe() {
       this.loading = true;
       try {
@@ -33,8 +37,10 @@ export const useAuthStore = defineStore("auth", {
       }
     },
     async logout() {
-      await api.post("/auth/logout");
+      await api.post("/auth/logout").catch(() => undefined);
+      clearAuthToken();
       this.user = null;
+      this.checked = true;
       window.location.href = "/login";
     }
   }

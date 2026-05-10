@@ -54,7 +54,7 @@ router.get(
     const token = jwt.sign({ sub: user._id.toString() }, config.jwtSecret, { expiresIn: "7d" });
 
     res.cookie("token", token, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
-    res.redirect(`${config.frontendUrl}/dashboard`);
+    res.redirect(`${config.frontendUrl}/login#token=${encodeURIComponent(token)}`);
   }
 );
 

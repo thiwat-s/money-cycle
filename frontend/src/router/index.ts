@@ -20,6 +20,13 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
   const isLoginPage = to.path === "/login";
+  const token = new URLSearchParams(to.hash.replace(/^#/, "")).get("token");
+
+  if (token) {
+    auth.setToken(token);
+    await auth.fetchMe();
+    return auth.user ? { path: "/dashboard", replace: true } : { path: "/login", replace: true };
+  }
 
   if (!auth.checked || isLoginPage || to.meta.requiresAuth) {
     await auth.fetchMe();
