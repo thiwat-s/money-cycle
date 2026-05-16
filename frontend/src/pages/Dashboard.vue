@@ -47,16 +47,22 @@
       </v-card-title>
       <v-card-text>
         <v-row>
-          <v-col cols="12" md="6">
+          <v-col cols="12" md="4">
             <v-card class="metric pa-5" elevation="0">
               <div class="text-body-2 text-medium-emphasis">Total Remaining as of {{ dailyFilter.date }}</div>
               <div class="text-h5 mt-2">{{ money(selectedRemaining) }}</div>
             </v-card>
           </v-col>
-          <v-col cols="12" md="6">
+          <v-col cols="12" md="4">
             <v-card class="metric pa-5" elevation="0">
               <div class="text-body-2 text-medium-emphasis">Total Expenses on {{ dailyFilter.date }}</div>
               <div class="text-h5 mt-2">{{ money(selectedDayExpenses) }}</div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-card class="metric pa-5" elevation="0">
+              <div class="text-body-2 text-medium-emphasis">Total Income on {{ dailyFilter.date }}</div>
+              <div class="text-h5 mt-2">{{ money(selectedDayIncome) }}</div>
             </v-card>
           </v-col>
         </v-row>
@@ -66,6 +72,7 @@
             <tr>
               <th>Account</th>
               <th class="text-right">Daily Expenses</th>
+              <th class="text-right">Daily Income</th>
               <th class="text-right">Remaining as of Date</th>
             </tr>
           </thead>
@@ -73,6 +80,7 @@
             <tr v-for="account in accounts.accounts" :key="account._id">
               <td data-label="Account">{{ account.name }}</td>
               <td data-label="Daily Expenses" class="text-right">{{ money(dailyExpenseFor(account._id)) }}</td>
+              <td data-label="Daily Income" class="text-right">{{ money(dailyIncomeFor(account._id)) }}</td>
               <td data-label="Remaining" class="text-right">{{ money(balanceForDate(account._id, dailyFilter.date)) }}</td>
             </tr>
           </tbody>
@@ -93,6 +101,7 @@
             <th>Account</th>
             <th>Color</th>
             <th class="text-right">Allocation</th>
+            <th class="text-right">Income</th>
             <th class="text-right">Expenses</th>
             <th class="text-right">Remaining</th>
             <th class="text-right">Actions</th>
@@ -103,6 +112,7 @@
             <td data-label="Account">{{ account.name }}</td>
             <td data-label="Color"><v-chip :color="account.color" variant="flat" size="small">{{ account.color }}</v-chip></td>
             <td data-label="Allocation" class="text-right">{{ money(allocationFor(account._id)) }}</td>
+            <td data-label="Income" class="text-right">{{ money(incomeFor(account._id)) }}</td>
             <td data-label="Expenses" class="text-right">{{ money(expenseFor(account._id)) }}</td>
             <td data-label="Remaining" class="text-right">{{ money(balanceFor(account._id)) }}</td>
             <td data-label="Actions" class="text-right table-actions">
@@ -113,6 +123,10 @@
         </tbody>
       </v-table>
     </v-card>
+
+    <v-alert class="mt-6" type="info" variant="tonal">
+      Default cycle account: {{ defaultCycleAccount?.name ?? "No account yet" }}. New cycle salary is allocated here automatically when no custom allocations are provided.
+    </v-alert>
 
     <v-dialog v-model="cycleDialog" max-width="460" :fullscreen="mobile">
       <v-card title="Start New Cycle">
@@ -187,9 +201,12 @@ const dailyFilter = reactive({
 });
 
 const expenses = computed(() => transactions.transactions.filter((item) => item.type === "expense"));
+const incomes = computed(() => transactions.transactions.filter((item) => item.type === "income"));
 const totalAllocated = computed(() => cycle.current?.allocations.reduce((sum, item) => sum + item.amount, 0) ?? 0);
 const totalExpenses = computed(() => expenses.value.reduce((sum, item) => sum + item.amount, 0));
-const totalRemaining = computed(() => totalAllocated.value - totalExpenses.value);
+const totalIncome = computed(() => incomes.value.reduce((sum, item) => sum + item.amount, 0));
+const totalRemaining = computed(() => totalAllocated.value + totalIncome.value - totalExpenses.value);
+const defaultCycleAccount = computed(() => accounts.accounts[0] ?? null);
 const daysLeft = computed(() => {
   if (!cycle.current) return 0;
   const today = startOfDay(new Date()).getTime();
@@ -211,7 +228,18 @@ const selectedCumulativeExpenses = computed(() =>
     })
     .reduce((sum, item) => sum + item.amount, 0)
 );
-const selectedRemaining = computed(() => totalAllocated.value - selectedCumulativeExpenses.value);
+const selectedDayIncome = computed(() =>
+  incomes.value.filter((item) => dateKey(item.date) === dailyFilter.date).reduce((sum, item) => sum + item.amount, 0)
+);
+const selectedCumulativeIncome = computed(() =>
+  incomes.value
+    .filter((item) => {
+      const transactionDate = dateKey(item.date);
+      return isDateInCycle(transactionDate) && transactionDate <= dailyFilter.date;
+    })
+    .reduce((sum, item) => sum + item.amount, 0)
+);
+const selectedRemaining = computed(() => totalAllocated.value + selectedCumulativeIncome.value - selectedCumulativeExpenses.value);
 
 function allocationFor(accountId: string) {
   return cycle.current?.allocations.find((item) => item.accountId === accountId)?.amount ?? 0;
@@ -222,7 +250,11 @@ function expenseFor(accountId: string) {
 }
 
 function balanceFor(accountId: string) {
-  return allocationFor(accountId) - expenseFor(accountId);
+  return allocationFor(accountId) + incomeFor(accountId) - expenseFor(accountId);
+}
+
+function incomeFor(accountId: string) {
+  return incomes.value.filter((item) => item.accountId === accountId).reduce((sum, item) => sum + item.amount, 0);
 }
 
 function dailyExpenseFor(accountId: string) {
@@ -231,11 +263,20 @@ function dailyExpenseFor(accountId: string) {
     .reduce((sum, item) => sum + item.amount, 0);
 }
 
+function dailyIncomeFor(accountId: string) {
+  return incomes.value
+    .filter((item) => item.accountId === accountId && dateKey(item.date) === dailyFilter.date)
+    .reduce((sum, item) => sum + item.amount, 0);
+}
+
 function balanceForDate(accountId: string, date: string) {
   const spent = expenses.value
     .filter((item) => item.accountId === accountId && isDateInCycle(dateKey(item.date)) && dateKey(item.date) <= date)
     .reduce((sum, item) => sum + item.amount, 0);
-  return allocationFor(accountId) - spent;
+  const received = incomes.value
+    .filter((item) => item.accountId === accountId && isDateInCycle(dateKey(item.date)) && dateKey(item.date) <= date)
+    .reduce((sum, item) => sum + item.amount, 0);
+  return allocationFor(accountId) + received - spent;
 }
 
 function accountName(accountId: string) {

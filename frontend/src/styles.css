@@ -45,23 +45,6 @@ body {
   width: min(220px, 100%);
 }
 
-.timeline {
-  height: 180px;
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-}
-
-.timeline-bar {
-  flex: 1;
-  min-width: 3px;
-  background: #2563eb;
-  border-radius: 3px 3px 0 0;
-}
-
 .form-grid {
   display: grid;
   gap: 16px;
@@ -171,12 +154,6 @@ body {
 
   .daily-filter {
     width: 100%;
-  }
-
-  .timeline {
-    height: 150px;
-    gap: 2px;
-    padding: 10px;
   }
 
   .allocation-row {

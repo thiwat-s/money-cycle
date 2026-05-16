@@ -21,7 +21,7 @@
             <v-select v-model="filters.category" clearable label="Filter by category" :items="categoryOptions" />
           </v-col>
           <v-col cols="12" md="4">
-            <v-select v-model="filters.type" clearable label="Filter by type" :items="['expense', 'transfer']" />
+            <v-select v-model="filters.type" clearable label="Filter by type" :items="transactionTypes" />
           </v-col>
         </v-row>
       </v-card-text>
@@ -43,7 +43,7 @@
         <tbody>
           <tr v-for="item in filteredTransactions" :key="item._id">
             <td data-label="Date">{{ dateLabel(item.date) }}</td>
-            <td data-label="Type"><v-chip size="small" :color="item.type === 'expense' ? 'error' : 'secondary'" variant="tonal">{{ item.type }}</v-chip></td>
+            <td data-label="Type"><v-chip size="small" :color="typeColor(item.type)" variant="tonal">{{ item.type }}</v-chip></td>
             <td data-label="Account">{{ accountName(item.accountId) }}<span v-if="item.type === 'transfer'"> to {{ accountName(item.transferToAccountId) }}</span></td>
             <td data-label="Category">{{ item.category }}</td>
             <td data-label="Note">{{ item.note }}</td>
@@ -62,7 +62,7 @@
         <v-card-text class="form-grid">
           <DateField v-model="form.date" label="Date" />
           <v-select v-model="form.accountId" label="Source account" :items="accounts.accounts" item-title="name" item-value="_id" />
-          <v-select v-model="form.type" label="Type" :items="['expense', 'transfer']" />
+          <v-select v-model="form.type" label="Type" :items="transactionTypes" />
           <v-select
             v-if="form.type === 'transfer'"
             v-model="form.transferToAccountId"
@@ -145,7 +145,7 @@ const form = reactive({
   id: "",
   accountId: "",
   transferToAccountId: "",
-  type: "expense" as "expense" | "transfer",
+  type: "expense" as "expense" | "transfer" | "income",
   amount: 0,
   category: "",
   note: "",
@@ -160,6 +160,7 @@ const categoryForm = reactive({
 
 const categoryOptions = computed(() => categoryStore.categories.map((category) => category.name));
 const destinationAccounts = computed(() => accounts.accounts.filter((account) => account._id !== form.accountId));
+const transactionTypes = ["expense", "transfer", "income"];
 const filteredTransactions = computed(() =>
   transactions.transactions.filter((item) => {
     if (filters.accountId && item.accountId !== filters.accountId && item.transferToAccountId !== filters.accountId) return false;
@@ -179,6 +180,12 @@ function money(value: number) {
 
 function dateLabel(value: string) {
   return new Date(value).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+}
+
+function typeColor(type: Transaction["type"]) {
+  if (type === "expense") return "error";
+  if (type === "income") return "success";
+  return "secondary";
 }
 
 function openDialog(transaction?: Transaction) {

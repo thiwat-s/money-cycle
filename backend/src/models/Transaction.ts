@@ -5,7 +5,7 @@ const transactionSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     cycleId: { type: Schema.Types.ObjectId, ref: "Cycle", required: true, index: true },
     accountId: { type: Schema.Types.ObjectId, ref: "Account", required: true },
-    type: { type: String, enum: ["expense", "transfer"], required: true },
+    type: { type: String, enum: ["expense", "transfer", "income"], required: true },
     amount: { type: Number, required: true, min: 0 },
     category: { type: String, default: "" },
     note: { type: String, default: "" },

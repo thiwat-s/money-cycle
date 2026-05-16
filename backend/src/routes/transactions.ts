@@ -83,32 +83,19 @@ router.put("/:id", async (req, res) => {
     }
   }
 
+  const baseUpdate = {
+    cycleId: req.body.cycleId,
+    accountId: req.body.accountId,
+    type: req.body.type,
+    amount,
+    category: req.body.category,
+    note: req.body.note,
+    date: req.body.date
+  };
   const update =
     req.body.type === "transfer"
-      ? {
-          $set: {
-            cycleId: req.body.cycleId,
-            accountId: req.body.accountId,
-            type: req.body.type,
-            amount,
-            category: req.body.category,
-            note: req.body.note,
-            date: req.body.date,
-            transferToAccountId: req.body.transferToAccountId
-          }
-        }
-      : {
-          $set: {
-            cycleId: req.body.cycleId,
-            accountId: req.body.accountId,
-            type: req.body.type,
-            amount,
-            category: req.body.category,
-            note: req.body.note,
-            date: req.body.date
-          },
-          $unset: { transferToAccountId: "" }
-        };
+      ? { $set: { ...baseUpdate, transferToAccountId: req.body.transferToAccountId } }
+      : { $set: baseUpdate, $unset: { transferToAccountId: "" } };
 
   const transaction = await Transaction.findOneAndUpdate(
     { _id: req.params.id, userId: getUserId(req) },

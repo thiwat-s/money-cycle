@@ -5,7 +5,7 @@ export type Transaction = {
   _id: string;
   cycleId: string;
   accountId: string;
-  type: "expense" | "transfer";
+  type: "expense" | "transfer" | "income";
   amount: number;
   category: string;
   note: string;

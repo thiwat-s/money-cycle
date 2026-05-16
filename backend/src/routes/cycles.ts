@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, getUserId } from "../middleware/authenticate.js";
+import { Account } from "../models/Account.js";
 import { Cycle } from "../models/Cycle.js";
 import { User } from "../models/User.js";
 import { getCurrentCycleDates } from "../utils/payDate.js";
@@ -49,11 +50,18 @@ router.post("/", async (req, res) => {
   const user = await User.findById(getUserId(req));
   const { startDate, endDate } = getCurrentCycleDates(req.body.date ? new Date(req.body.date) : new Date(), user?.settings?.payDay ?? 21);
   const salary = Number(req.body.salary);
-  const allocations = normalizeAllocations(req.body.allocations ?? []);
+  let allocations = normalizeAllocations(req.body.allocations ?? []);
 
   if (!Number.isFinite(salary) || salary < 0) {
     res.status(400).json({ message: "Salary must be a positive number" });
     return;
+  }
+
+  if (allocations.length === 0 && salary > 0) {
+    const defaultAccount = await Account.findOne({ userId: getUserId(req) }).sort({ order: 1, createdAt: 1 });
+    if (defaultAccount) {
+      allocations = [{ accountId: defaultAccount._id.toString(), amount: salary }];
+    }
   }
 
   if (allocationTotal(allocations) > salary) {
