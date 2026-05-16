@@ -16,6 +16,7 @@ router.post("/", async (req, res) => {
     userId: getUserId(req),
     name: req.body.name,
     color: req.body.color,
+    startingBalance: req.body.startingBalance,
     order: req.body.order
   });
   res.status(201).json(account);
@@ -24,7 +25,7 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const account = await Account.findOneAndUpdate(
     { _id: req.params.id, userId: getUserId(req) },
-    { name: req.body.name, color: req.body.color, order: req.body.order },
+    { name: req.body.name, color: req.body.color, startingBalance: req.body.startingBalance, order: req.body.order },
     { new: true, runValidators: true }
   );
 

@@ -5,6 +5,7 @@ const accountSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     name: { type: String, required: true, trim: true },
     color: { type: String, default: "#1976D2" },
+    startingBalance: { type: Number, default: 0 },
     order: { type: Number, default: 0 }
   },
   { timestamps: true }

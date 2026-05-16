@@ -11,34 +11,42 @@
       </div>
     </div>
 
-    <v-row>
-      <v-col cols="6" md="3">
-        <v-card class="metric pa-5" elevation="0">
-          <div class="text-body-2 text-medium-emphasis">Total Remaining</div>
-          <div class="text-h5 mt-2">{{ money(totalRemaining) }}</div>
-        </v-card>
-      </v-col>
-      <v-col cols="6" md="3">
-        <v-card class="metric pa-5" elevation="0">
-          <div class="text-body-2 text-medium-emphasis">Spent This Cycle</div>
-          <div class="text-h5 mt-2">{{ money(totalExpenses) }}</div>
-        </v-card>
-      </v-col>
-      <v-col cols="6" md="3">
-        <v-card class="metric pa-5" elevation="0">
-          <div class="text-body-2 text-medium-emphasis">Allocated</div>
-          <div class="text-h5 mt-2">{{ money(totalAllocated) }}</div>
-        </v-card>
-      </v-col>
-      <v-col cols="6" md="3">
-        <v-card class="metric pa-5" elevation="0">
-          <div class="text-body-2 text-medium-emphasis">Days Left</div>
-          <div class="text-h5 mt-2">{{ daysLeft }}</div>
-        </v-card>
-      </v-col>
-    </v-row>
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <div>
+          <h2>Overview</h2>
+          <p>Current cycle totals across every account.</p>
+        </div>
+      </div>
+      <v-row>
+        <v-col cols="6" md="3">
+          <v-card class="metric pa-5" elevation="0">
+            <div class="text-body-2 text-medium-emphasis">Total Remaining</div>
+            <div class="text-h5 mt-2">{{ money(totalRemaining) }}</div>
+          </v-card>
+        </v-col>
+        <v-col cols="6" md="3">
+          <v-card class="metric pa-5" elevation="0">
+            <div class="text-body-2 text-medium-emphasis">Spent This Cycle</div>
+            <div class="text-h5 mt-2">{{ money(totalExpenses) }}</div>
+          </v-card>
+        </v-col>
+        <v-col cols="6" md="3">
+          <v-card class="metric pa-5" elevation="0">
+            <div class="text-body-2 text-medium-emphasis">Allocated</div>
+            <div class="text-h5 mt-2">{{ money(totalAllocated) }}</div>
+          </v-card>
+        </v-col>
+        <v-col cols="6" md="3">
+          <v-card class="metric pa-5" elevation="0">
+            <div class="text-body-2 text-medium-emphasis">Days Left</div>
+            <div class="text-h5 mt-2">{{ daysLeft }}</div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </section>
 
-    <v-card class="mt-6" elevation="0">
+    <v-card class="dashboard-section" elevation="0">
       <v-card-title class="responsive-card-title">
         <span>Daily Summary</span>
         <div class="daily-filter">
@@ -88,7 +96,7 @@
       </v-card-text>
     </v-card>
 
-    <v-card class="mt-6" elevation="0">
+    <v-card class="dashboard-section" elevation="0">
       <v-card-title class="responsive-card-title">
         <span>Accounts</span>
         <v-btn v-if="cycle.current?._id" size="small" variant="tonal" prepend-icon="mdi-cash-multiple" @click="openAllocationDialog">
@@ -100,6 +108,7 @@
           <tr>
             <th>Account</th>
             <th>Color</th>
+            <th class="text-right">Starting Balance</th>
             <th class="text-right">Allocation</th>
             <th class="text-right">Income</th>
             <th class="text-right">Expenses</th>
@@ -111,6 +120,7 @@
           <tr v-for="account in accounts.accounts" :key="account._id">
             <td data-label="Account">{{ account.name }}</td>
             <td data-label="Color"><v-chip :color="account.color" variant="flat" size="small">{{ account.color }}</v-chip></td>
+            <td data-label="Starting Balance" class="text-right">{{ money(account.startingBalance ?? 0) }}</td>
             <td data-label="Allocation" class="text-right">{{ money(allocationFor(account._id)) }}</td>
             <td data-label="Income" class="text-right">{{ money(incomeFor(account._id)) }}</td>
             <td data-label="Expenses" class="text-right">{{ money(expenseFor(account._id)) }}</td>
@@ -146,6 +156,7 @@
         <v-card-text class="form-grid">
           <v-text-field v-model="accountForm.name" label="Account name" />
           <v-text-field v-model="accountForm.color" label="Color" type="color" />
+          <v-text-field v-model.number="accountForm.startingBalance" label="Starting balance" type="number" />
           <v-text-field v-model.number="accountForm.order" label="Display order" type="number" />
         </v-card-text>
         <v-card-actions>
@@ -194,7 +205,7 @@ const accountDialog = ref(false);
 const allocationDialog = ref(false);
 const allocationError = ref("");
 const cycleForm = reactive({ salary: 0 });
-const accountForm = reactive({ id: "", name: "", color: "#2563EB", order: 0 });
+const accountForm = reactive({ id: "", name: "", color: "#2563EB", startingBalance: 0, order: 0 });
 const allocationForm = ref<Allocation[]>([]);
 const dailyFilter = reactive({
   date: formatLocalDate(new Date())
@@ -205,7 +216,8 @@ const incomes = computed(() => transactions.transactions.filter((item) => item.t
 const totalAllocated = computed(() => cycle.current?.allocations.reduce((sum, item) => sum + item.amount, 0) ?? 0);
 const totalExpenses = computed(() => expenses.value.reduce((sum, item) => sum + item.amount, 0));
 const totalIncome = computed(() => incomes.value.reduce((sum, item) => sum + item.amount, 0));
-const totalRemaining = computed(() => totalAllocated.value + totalIncome.value - totalExpenses.value);
+const totalStartingBalance = computed(() => accounts.accounts.reduce((sum, account) => sum + Number(account.startingBalance ?? 0), 0));
+const totalRemaining = computed(() => totalStartingBalance.value + totalAllocated.value + totalIncome.value - totalExpenses.value);
 const defaultCycleAccount = computed(() => accounts.accounts[0] ?? null);
 const daysLeft = computed(() => {
   if (!cycle.current) return 0;
@@ -239,7 +251,7 @@ const selectedCumulativeIncome = computed(() =>
     })
     .reduce((sum, item) => sum + item.amount, 0)
 );
-const selectedRemaining = computed(() => totalAllocated.value + selectedCumulativeIncome.value - selectedCumulativeExpenses.value);
+const selectedRemaining = computed(() => totalStartingBalance.value + totalAllocated.value + selectedCumulativeIncome.value - selectedCumulativeExpenses.value);
 
 function allocationFor(accountId: string) {
   return cycle.current?.allocations.find((item) => item.accountId === accountId)?.amount ?? 0;
@@ -250,11 +262,15 @@ function expenseFor(accountId: string) {
 }
 
 function balanceFor(accountId: string) {
-  return allocationFor(accountId) + incomeFor(accountId) - expenseFor(accountId);
+  return startingBalanceFor(accountId) + allocationFor(accountId) + incomeFor(accountId) - expenseFor(accountId);
 }
 
 function incomeFor(accountId: string) {
   return incomes.value.filter((item) => item.accountId === accountId).reduce((sum, item) => sum + item.amount, 0);
+}
+
+function startingBalanceFor(accountId: string) {
+  return Number(accounts.accounts.find((account) => account._id === accountId)?.startingBalance ?? 0);
 }
 
 function dailyExpenseFor(accountId: string) {
@@ -276,7 +292,7 @@ function balanceForDate(accountId: string, date: string) {
   const received = incomes.value
     .filter((item) => item.accountId === accountId && isDateInCycle(dateKey(item.date)) && dateKey(item.date) <= date)
     .reduce((sum, item) => sum + item.amount, 0);
-  return allocationFor(accountId) + received - spent;
+  return startingBalanceFor(accountId) + allocationFor(accountId) + received - spent;
 }
 
 function accountName(accountId: string) {
@@ -329,13 +345,19 @@ function openAccountDialog(account?: Account) {
   accountForm.id = account?._id ?? "";
   accountForm.name = account?.name ?? "";
   accountForm.color = account?.color ?? "#2563EB";
+  accountForm.startingBalance = account?.startingBalance ?? 0;
   accountForm.order = account?.order ?? accounts.accounts.length;
   accountDialog.value = true;
 }
 
 async function saveAccount() {
   if (!accountForm.name.trim()) return;
-  const payload = { name: accountForm.name.trim(), color: accountForm.color, order: accountForm.order };
+  const payload = {
+    name: accountForm.name.trim(),
+    color: accountForm.color,
+    startingBalance: Number(accountForm.startingBalance || 0),
+    order: accountForm.order
+  };
   if (accountForm.id) await accounts.updateAccount(accountForm.id, payload);
   else await accounts.createAccount(payload);
   accountDialog.value = false;

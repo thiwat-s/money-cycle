@@ -25,9 +25,19 @@ const auth = useAuthStore();
   display: grid;
   place-items: center;
   padding: 24px;
+  position: relative;
+  overflow: hidden;
   background:
-    linear-gradient(rgba(15, 23, 42, 0.54), rgba(15, 23, 42, 0.48)),
-    url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1800&q=80") center/cover;
+    linear-gradient(90deg, rgba(8, 17, 34, 0.78) 0%, rgba(8, 17, 34, 0.62) 44%, rgba(8, 17, 34, 0.22) 100%),
+    url("https://images.unsplash.com/photo-1554224154-26032fced8bd?auto=format&fit=crop&w=2200&q=85") center/cover;
+}
+
+.login-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 118, 110, 0.18), rgba(37, 99, 235, 0.08));
+  pointer-events: none;
 }
 
 .login-panel {
@@ -35,11 +45,15 @@ const auth = useAuthStore();
   color: white;
   display: grid;
   gap: 28px;
+  position: relative;
+  z-index: 1;
+  justify-self: start;
+  margin-left: clamp(0px, 8vw, 120px);
 }
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #bfdbfe;
+  color: #99f6e4;
   font-weight: 700;
 }
 
@@ -53,5 +67,24 @@ h1 {
   margin: 18px 0 0;
   font-size: 18px;
   max-width: 520px;
+}
+
+@media (max-width: 720px) {
+  .login-page {
+    place-items: end start;
+    padding: 28px 20px 44px;
+    background:
+      linear-gradient(180deg, rgba(8, 17, 34, 0.28) 0%, rgba(8, 17, 34, 0.76) 58%, rgba(8, 17, 34, 0.92) 100%),
+      url("https://images.unsplash.com/photo-1554224154-26032fced8bd?auto=format&fit=crop&w=1200&q=85") center/cover;
+  }
+
+  .login-panel {
+    margin-left: 0;
+    gap: 24px;
+  }
+
+  .copy {
+    font-size: 1rem;
+  }
 }
 </style>

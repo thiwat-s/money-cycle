@@ -34,6 +34,36 @@ body {
   min-height: 118px;
 }
 
+.dashboard-section {
+  margin-top: 28px;
+}
+
+.dashboard-section:first-of-type {
+  margin-top: 0;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #dbe4ef;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.section-heading p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
 .responsive-card-title {
   display: flex;
   align-items: center;
@@ -128,6 +158,21 @@ body {
   .metric {
     min-height: 104px;
     padding: 14px !important;
+  }
+
+  .dashboard-section {
+    margin-top: 24px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .section-heading h2 {
+    font-size: 1.12rem;
   }
 
   .metric .text-h5 {
